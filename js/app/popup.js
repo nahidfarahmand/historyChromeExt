@@ -1,6 +1,4 @@
-﻿
-
-myApp.filter( 'domain', function () {
+﻿myApp.filter( 'domain', function () {
   return function ( input ) {
     var matches,
         output = "",
