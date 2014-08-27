@@ -16,8 +16,7 @@
 myApp.controller("PageController", function ($scope) {
 
 	
-	    $scope.date = new Date();
-        $scope.$apply();
+      $scope.date = new Date();
 	
 	var DomainInfo = function(hasDuration,name,icon) {
     this.hasDuration = hasDuration;
