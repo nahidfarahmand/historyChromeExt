@@ -1,0 +1,29 @@
+﻿<!DOCTYPE html>
+<html ng-app="HistoryChromeEx" ng-csp>
+    <head>
+        <link rel="stylesheet" href="css/popup.css">
+<link rel="stylesheet" href="http://netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css">
+        <!--<script src="js/lib/jquery-1.8.2.min.js"></script>-->
+        <script src="js/lib/angular.min.js"></script>
+		<script src="js/lib/ui-bootstrap-tpls-0.11.0.min.js"></script>
+
+        <script src="js/app/app.js"></script>
+        <script src="js/app/popup.js"></script>
+    </head>
+    <body id="popup">
+        <header>
+            <h1>Nahid Chrome Extension</h1>
+        </header>
+
+        <div ng-controller="PageController">
+		  <div style="display:inline-block;" ng-model="date" ng-click="change()">
+		   {{date | date:'yyyy-MM-dd HH:00'}}
+         </div>
+
+		 <ul class="list-inline" ng-repeat="url in urlArray">
+  <li  ng-repeat="info in definedDomains | filter:{name:(url | domain)}" ><img ng-src={{info.icon}} class="icon" style="display:inline-block;"/></li>
+  <li style="margin-top:-17px;margin-left:18px;">{{ url}}</li>
+  </ul>
+        </div>
+    </body>
+</html>
