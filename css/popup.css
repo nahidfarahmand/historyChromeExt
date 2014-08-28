@@ -23,4 +23,12 @@ body {
 {
 margin-right:5px;
 }
+.bold
+{
+	font-weight:bold;
+}
+.large
+{
+	font-size:16px;
+}
 

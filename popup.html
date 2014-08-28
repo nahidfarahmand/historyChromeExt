@@ -16,10 +16,15 @@
         </header>
 
         <div ng-controller="PageController">
-		  <div style="display:inline-block;" ng-model="date" ng-click="change()">
-		   {{date | date:'yyyy-MM-dd HH:00'}}
-         </div>
-
+		  <button type="button" class="btn btn-primary" ng-init="init()">{{date | date:'dd-EEE-yyyy HH:00'}}</button>
+			<hr>
+		  <ul class="list-inline">
+			<li ng-repeat="day in daysOfWeek" class="min-margin-right" ng-class="{'bold large' : selectedDay == day.index}" ng-click="changeDay(day.index);"> {{ day.name}}</li>
+		  </ul>
+		  <ul class="list-inline">
+			<li ng-repeat="time in [] | range:24" class="min-margin-right" ng-class="{'bold large' : selectedHour == time}" ng-click="changeTime(time)"> {{ time | formatTime}}</li>
+		  </ul>
+			<hr>
 		 <ul class="list-inline" ng-repeat="url in urlArray">
   <li  ng-repeat="info in definedDomains | filter:{name:(url | domain)}" ><img ng-src={{info.icon}} class="icon" style="display:inline-block;"/></li>
   <li style="margin-top:-17px;margin-left:18px;">{{ url}}</li>
