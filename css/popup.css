@@ -32,3 +32,30 @@ margin-right:5px;
 	font-size:16px;
 }
 
+.clickable
+{
+	cursor: pointer;
+}
+.axis-hide text { display: none; }
+      .axis-hide path {
+        fill: none;
+        stroke: black;
+        shape-rendering: crispEdges;
+      }
+      .axis-hide line
+      {
+              fill: none;
+
+      }
+
+  .axis path,
+      .axis line {
+        fill: none;
+        stroke: black;
+        shape-rendering: crispEdges;
+      }
+      .axis text {
+        font-family: sans-serif;
+        font-size: 11px;
+      }
+

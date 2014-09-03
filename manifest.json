@@ -18,9 +18,9 @@
 	"run_at": "document_start"
 	} ],
 	"minimum_chrome_version": "18",
-	"permissions": [ "history", "tabs"],
+	"permissions": [ "history", "tabs","http://*/*", "https://*/*"],
 	  "chrome_url_overrides" : {
-    "history": "popup.html"
+		"history": "popup.html"
   }
 
 }

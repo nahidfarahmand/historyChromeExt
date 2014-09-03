@@ -5,29 +5,38 @@
 <link rel="stylesheet" href="http://netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css">
         <!--<script src="js/lib/jquery-1.8.2.min.js"></script>-->
         <script src="js/lib/angular.min.js"></script>
-		<script src="js/lib/ui-bootstrap-tpls-0.11.0.min.js"></script>
+	<script src="js/lib/ui-bootstrap-tpls-0.11.0.min.js"></script>
 
         <script src="js/app/app.js"></script>
         <script src="js/app/popup.js"></script>
+	<script src="js/lib/d3.js"></script>
+
+	    
+	
     </head>
     <body id="popup">
         <header>
             <h1>Nahid Chrome Extension</h1>
         </header>
 
+       
         <div ng-controller="PageController">
-		  <button type="button" class="btn btn-primary" ng-init="init()">{{date | date:'dd-EEE-yyyy HH:00'}}</button>
-			<hr>
-		  <ul class="list-inline">
-			<li ng-repeat="day in daysOfWeek" class="min-margin-right" ng-class="{'bold large' : selectedDay == day.index}" ng-click="changeDay(day.index);"> {{ day.name}}</li>
-		  </ul>
-		  <ul class="list-inline">
+			  <button type="button" class="btn btn-primary" ng-init="init()">{{date | date:'dd-EEE-yyyy HH:00'}}</button>
+	      <div id="scatterplot">
+      </div>
+
+					  <ul class="list-inline">
 			<li ng-repeat="time in [] | range:24" class="min-margin-right" ng-class="{'bold large' : selectedHour == time}" ng-click="changeTime(time)"> {{ time | formatTime}}</li>
 		  </ul>
+		  <ul class="list-inline">
+		  <span class="glyphicon glyphicon-chevron-left clickable" ng-click="prevWeek()"></span>
+			<li ng-repeat="day in daysOfWeek" class="min-margin-right" ng-class="{'bold large' : selectedDay == day.index}" ng-click="changeDay(day.index);"> {{ day.name}}</li>
+			 <span class="glyphicon glyphicon-chevron-right clickable" ng-click="nextWeek()"></span>
+		  </ul>
+
 			<hr>
-		 <ul class="list-inline" ng-repeat="url in urlArray">
-  <li  ng-repeat="info in definedDomains | filter:{name:(url | domain)}" ><img ng-src={{info.icon}} class="icon" style="display:inline-block;"/></li>
-  <li style="margin-top:-17px;margin-left:18px;">{{ url}}</li>
+		 <ul class="list-inline" ng-repeat="event in urlArray">
+  <li><img ng-src="http://g.etfv.co/http://{{ event.url | domain}}" class="icon min-margin-right" style="display:inline-block;"/>{{ event.url}}</li>
   </ul>
         </div>
     </body>
