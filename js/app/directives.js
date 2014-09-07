@@ -1,0 +1,1 @@
+var components = angular.module('HistoryChromeEx.directives', []);

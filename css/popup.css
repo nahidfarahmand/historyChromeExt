@@ -1,10 +1,12 @@
-body {
+html, body {
   font-family: Helvetica, sans-serif;
+  width:100%;
 }
+
+body { padding: 10px;}
 
 #popup {
   min-width: 500px;
-  width: 800px;
   min-height: 10px;
   height: 300px;
   margin: 12px;
@@ -18,6 +20,9 @@ body {
 {
 	width:15px;
 	height:15px;
+}
+.plot {
+  cursor: pointer;
 }
 .min-margin-right
 {
@@ -59,3 +64,50 @@ margin-right:5px;
         font-size: 11px;
       }
 
+ul.history-list {
+  list-style: none;
+  padding-left: 0;
+  width: 100%;
+}
+
+ul.history-list li {
+  padding-bottom:  5px;
+  border-radius: 5px;
+}
+
+ul.history-list li a {
+  padding: 5px;
+  margin-bottom: 5px;
+}
+
+div.item-history {
+  display: inline-block;
+  padding: 5px;
+  padding-left: 25px;
+}
+
+ul.history-list li img{
+  display: inline-block;
+  margin-top: 20px;
+  position: absolute;
+}
+
+ul.history-list li:hover {
+  background: #D0E5F7;
+  text-decoration: none;
+}
+
+ul.history-list li:active {
+  background: #AFCBE4;
+  text-decoration: none;
+}
+
+ul.history-list li .item-title{
+  padding-top: 2.5px;
+  font-size: 12px;
+  color: #aaa;
+}
+
+ul.history-list li .item-url{
+  color: #428bca;
+}

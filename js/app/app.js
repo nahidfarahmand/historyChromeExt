@@ -1,4 +1,4 @@
-﻿var myApp = angular.module('HistoryChromeEx', []);
+﻿var myApp = angular.module('HistoryChromeEx', ['HistoryChromeEx.filters', 'HistoryChromeEx.services', 'HistoryChromeEx.directives', 'HistoryChromeEx.controllers']);
 var activities = [];
 
 chrome.tabs.onUpdated.addListener(function(tabId, changedInfo, tab){
