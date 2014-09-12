@@ -301,7 +301,7 @@ ctrls.controller("PageController", function($scope, $filter) {
 
         g.selectAll('#scatterplot')
             .data($scope.chartArray) // using the values in the yFemaleLE array
-            .enter().append('image').attr('class', 'plot')
+            .enter().append('image').attr('class', 'history-item history-ax-item')
             .attr('data-original-title', function(d){return d.title;})
             .attr('data-trigger', 'manual')
             .attr('data-placement', 'top')
@@ -340,11 +340,23 @@ ctrls.controller("PageController", function($scope, $filter) {
 		.attr('y1', $scope.chartArrayWithDuration[i].index * 8 + 2)
 		.attr('y2', $scope.chartArrayWithDuration[i].index * 8 + 2)
 		.attr('stroke','#b31217').attr('stroke-width',4)
-		.attr('class','min-margin-bottom')
+         .attr('data-original-title', $scope.chartArrayWithDuration[i].title)
+        .attr('data-trigger', 'manual')
+        .attr('data-placement', 'bottom')
+        .attr('data-container', 'body')
+        .attr('class','youtube-item history-bx-item')
 		.attr('name',$scope.chartArrayWithDuration[i].url)
-		.on("click", function() {
-			window.open($(this).attr('name'), "_blank");})
-		.append("svg:title").html($scope.chartArrayWithDuration[i].title);
+        .on("click", function() {
+            window.open($(this).attr('name'), "_blank");
+        })
+        .on("mouseover", function(){
+            $(this).tooltip("show");
+        })
+        .on("mouseout", function(){
+            $(this).tooltip("hide");
+        })
+        .append("svg:title").html($scope.chartArrayWithDuration[i].title)
+
 		
 		
 	   }  

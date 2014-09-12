@@ -21,17 +21,19 @@ body { padding: 10px;}
 	width:15px;
 	height:15px;
 }
-.plot {
+.history-item {
   cursor: pointer;
 }
 .min-margin-right
 {
 margin-right:5px;
 }
-.min-margin-bottom:
+.youtube-item
 {
-margin-bottom:5px;
+  margin-bottom:5px;
+  cursor: pointer;
 }
+
 .bold
 {
 	font-weight:bold;
