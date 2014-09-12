@@ -30,21 +30,69 @@ ctrls.controller("PageController", function($scope, $filter) {
     $scope.selectedHour = $scope.date.getHours();
 
 
-    var EventInfo = function(id, duration, url, timeOfVisit, title) {
+    var EventInfo = function(id, url, timeOfVisit, title) {
         this.id = id;
-        this.duration = duration;
+        
         this.url = url;
         this.title = title;
         this.timeOfVisit = timeOfVisit;
         this.domain = $filter('domain')(url);
+	this.duration = CalculateDuration(this.domain,url);
     };
 
-    var ChartInfo = function(domain, time, index, url, title) {
+    var ChartInfo = function(domain, time, index, url, title,duration) {
         this.domain = domain;
         this.time = time;
         this.url = url;
         this.title = title;
         this.index = index;
+	this.duration = duration;
+    };
+    
+    var GetVideoId = function(url) {
+    
+        var splitted = url.split('v=');
+	if(splitted.length <= 1)
+		return video_id = '';
+	var video_id = splitted[1];
+	
+	var ampersandPosition = video_id.indexOf('&');
+	if(ampersandPosition != -1) 
+		video_id = video_id.substring(0, ampersandPosition);
+	return video_id;
+
+    };
+
+    
+    var CalculateYouTubeDuration = function(url) {
+	var video_id = GetVideoId(url);
+	var duration = 0;
+	if(video_id != '')
+	{
+		$.ajax({
+			url: 'http://gdata.youtube.com/feeds/api/videos/'+video_id+'?v=2&alt=jsonc',
+			dataType: 'json',
+			async: false,
+			success: function(data) {
+				duration = data.data.duration;
+			}
+		});
+     
+	}
+	return duration;
+
+    };
+    
+
+    
+    var CalculateDuration = function(domain,url) {
+	switch(domain) {
+		case 'www.youtube.com':
+		 return CalculateYouTubeDuration(url);
+		break;
+		default:
+		return 0;
+	}
     };
 
     $scope.urlArray = [];
@@ -107,23 +155,50 @@ ctrls.controller("PageController", function($scope, $filter) {
 
         var onAllVisitsProcessed = function() {
             $scope.chartArray = [];
+	    $scope.chartArrayWithDuration = [];
             var currentIndex = 0;
+	    var currentIndexWithDuration = 0;
             for (var ii = 0; ii < $scope.urlArray.length; ii++) {
                 var found = false;
+		var foundWithDuration = false;
                 var indexToAdd = 0;
-                for (var j = 0; j < currentIndex; j++) {
-                    if ($scope.chartArray[j].time == $scope.urlArray[ii].timeOfVisit.getMinutes() && $scope.chartArray[j].domain == $scope.urlArray[ii].domain) {
-                        found = true;
-                        break;
-                    }
-                    if ($scope.chartArray[j].time == $scope.urlArray[ii].timeOfVisit.getMinutes())
-                        indexToAdd++;
-                }
-                if (!found) {
-                    var title = ($scope.urlArray[ii].title.length > 0) ? $scope.urlArray[ii].title: "(no title)";
-                    $scope.chartArray.push(new ChartInfo($scope.urlArray[ii].domain, $scope.urlArray[ii].timeOfVisit.getMinutes(), indexToAdd, $scope.urlArray[ii].url, title));
-                    currentIndex++;
-                }
+		var indexToAddWithDuration = 0;
+		console.log($scope.urlArray[ii].duration);
+		if($scope.urlArray[ii].duration == 0)
+		{
+			for (var j = 0; j < currentIndex; j++) {
+			    if ($scope.chartArray[j].time == $scope.urlArray[ii].timeOfVisit.getMinutes() && $scope.chartArray[j].domain == $scope.urlArray[ii].domain) {
+				found = true;
+				break;
+			    }
+			    if ($scope.chartArray[j].time == $scope.urlArray[ii].timeOfVisit.getMinutes())
+				indexToAdd++;
+
+			}
+			if (!found) {
+			    var title = ($scope.urlArray[ii].title.length > 0) ? $scope.urlArray[ii].title: "(no title)";
+			    $scope.chartArray.push(new ChartInfo($scope.urlArray[ii].domain, $scope.urlArray[ii].timeOfVisit.getMinutes(), indexToAdd, $scope.urlArray[ii].url, title,$scope.urlArray[ii].duration));
+			    currentIndex++;
+			}
+		}
+		else
+		{
+			for (var j = 0; j < currentIndexWithDuration; j++) {
+			    if ($scope.chartArrayWithDuration[j].time == $scope.urlArray[ii].timeOfVisit.getMinutes() && $scope.chartArrayWithDuration[j].url == $scope.urlArray[ii].url) {
+				foundWithDuration = true;
+				break;
+			    }
+			    if ($scope.chartArrayWithDuration[j].time <= $scope.urlArray[ii].timeOfVisit.getMinutes() && $scope.urlArray[ii].timeOfVisit.getMinutes() <= ($scope.chartArrayWithDuration[j].time + $scope.chartArrayWithDuration[j].duration/60) )
+				indexToAddWithDuration++;
+
+			}
+			if (!foundWithDuration) {
+			    var title = ($scope.urlArray[ii].title.length > 0) ? $scope.urlArray[ii].title: "(no title)";
+			    $scope.chartArrayWithDuration.push(new ChartInfo($scope.urlArray[ii].domain, $scope.urlArray[ii].timeOfVisit.getMinutes(), indexToAddWithDuration, $scope.urlArray[ii].url, title,$scope.urlArray[ii].duration));
+			    currentIndexWithDuration++;
+			}		
+		}
+
             }
             //had to put this - view was not getting updated after one click
             $scope.draw();
@@ -141,8 +216,8 @@ ctrls.controller("PageController", function($scope, $filter) {
                 for (var i = 0; i < historyItems.length; ++i) {
                     var url = historyItems[i].url;
                     var title = historyItems[i].title;
-                    console.log(title);
-                    $scope.urlArray.push(new EventInfo(historyItems[i].id, 0, url, 0, title));
+                    //console.log(title);
+                    $scope.urlArray.push(new EventInfo(historyItems[i].id, url, 0, title));
                     var processVisitsWithUrl = function(url, index) {
                         return function(visitItems) {
                             processVisits(url, index, visitItems);
@@ -180,6 +255,9 @@ ctrls.controller("PageController", function($scope, $filter) {
         var y = d3.scale.linear()
             .domain([0, 100])
             .range([height, 0]);
+	var yy = d3.scale.linear()
+            .domain([0, 10])
+            .range([10, 0]);
         var r = d3.scale.linear()
             .range([5, 35]);
 
@@ -188,7 +266,8 @@ ctrls.controller("PageController", function($scope, $filter) {
             scatter.removeChild(scatter.firstChild);
         }
 
-        var chart = d3.select('#scatterplot')
+        $scope.chart = d3.select('#scatterplot');
+	var scatterChart = $scope.chart
             .append('svg:svg')
             .attr('width', width + margin.right + margin.left)
             .attr('height', height + margin.top + margin.bottom)
@@ -196,7 +275,7 @@ ctrls.controller("PageController", function($scope, $filter) {
 
 
 
-        var main = chart.append('g')
+        var main = scatterChart.append('g')
             .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')')
             .attr('width', width)
             .attr('height', height)
@@ -242,6 +321,33 @@ ctrls.controller("PageController", function($scope, $filter) {
             }).on("mouseout", function(){
                 $(this).tooltip("hide");
             });
+	    
+	    //Drawing the lines for pages with duration
+	    
+	   var svg = $scope.chart.append("svg")
+		.attr('transform', 'translate(' + margin.left + ',' + 0 + ')')
+                .attr('width', width)
+		.attr('height',80);
+		
+	
+	    for(var i = 0 ; i < $scope.chartArrayWithDuration.length ; i++)
+	   {
+
+		var line = svg.append("line");
+		line
+		.attr('x1',x($scope.chartArrayWithDuration[i].time))
+		.attr('x2',x($scope.chartArrayWithDuration[i].time + ($scope.chartArrayWithDuration[i].duration/60)))
+		.attr('y1', $scope.chartArrayWithDuration[i].index * 8 + 2)
+		.attr('y2', $scope.chartArrayWithDuration[i].index * 8 + 2)
+		.attr('stroke','#b31217').attr('stroke-width',4)
+		.attr('class','min-margin-bottom')
+		.attr('name',$scope.chartArrayWithDuration[i].url)
+		.on("click", function() {
+			window.open($(this).attr('name'), "_blank");})
+		.append("svg:title").html($scope.chartArrayWithDuration[i].title);
+		
+		
+	   }  
     };
 
 

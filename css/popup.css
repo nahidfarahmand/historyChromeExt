@@ -28,6 +28,10 @@ body { padding: 10px;}
 {
 margin-right:5px;
 }
+.min-margin-bottom:
+{
+margin-bottom:5px;
+}
 .bold
 {
 	font-weight:bold;
@@ -111,3 +115,4 @@ ul.history-list li .item-title{
 ul.history-list li .item-url{
   color: #428bca;
 }
+
