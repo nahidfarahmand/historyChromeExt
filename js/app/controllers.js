@@ -140,11 +140,11 @@ ctrls.controller("PageController", function($scope, $filter) {
 
         var processVisits = function(url, index, visitItems) {
             for (var ii = 0; ii < visitItems.length; ii++) {
+	    
                 //this id is always the same for all visits, it just checks the time
-                if (visitItems[ii].id == $scope.urlArray[index].id && visitItems[ii].visitTime > startTime && visitItems[ii].visitTime <= endTime) {
-                    $scope.urlArray[index].timeOfVisit = new Date(visitItems[ii].visitTime);
-                    //without break it is always showing the last occurance
-                    //break;
+                if (visitItems[ii].id == $scope.historyArray[index].id && visitItems[ii].visitTime >= startTime && visitItems[ii].visitTime <= endTime) {
+                    $scope.urlArray.push(new EventInfo($scope.historyArray[index].id, url, new Date(visitItems[ii].visitTime), $scope.historyArray[index].title));
+
                 }
             }
 
@@ -212,12 +212,11 @@ ctrls.controller("PageController", function($scope, $filter) {
             function(historyItems) {
                 // For each history item, get details on all visits.
                 $scope.urlArray = [];
+		$scope.historyArray = historyItems;
                 numberProcessed = historyItems.length;
                 for (var i = 0; i < historyItems.length; ++i) {
                     var url = historyItems[i].url;
                     var title = historyItems[i].title;
-                    //console.log(title);
-                    $scope.urlArray.push(new EventInfo(historyItems[i].id, url, 0, title));
                     var processVisitsWithUrl = function(url, index) {
                         return function(visitItems) {
                             processVisits(url, index, visitItems);
