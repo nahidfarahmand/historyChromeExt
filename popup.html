@@ -14,7 +14,11 @@
       <button type="button" class="btn btn-primary" ng-init="init()">
         {{date | date:'dd-EEE-yyyy HH:00'}}
       </button>
+      <button type="button" class="btn btn-primary" ng-click="hourView()">Hour View</button>
+      <button type="button" class="btn btn-primary" ng-click="dayView()">Day View</button>
       <div id="scatterplot">
+      </div>
+            <div id="scatterplot2">
       </div>
       <ul class="list-inline">
         <li ng-repeat="time in [] | range:24" class="min-margin-right" ng-class="{'bold large' : selectedHour == time}" ng-click="changeTime(time)">
@@ -43,6 +47,7 @@
         </li>
       </ul>
     </div>
+    
   </body>
   <script src="js/lib/jquery-1.8.2.min.js"></script>
   <script src="js/lib/bootstrap.min.js"></script>
