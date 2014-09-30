@@ -122,3 +122,20 @@ ul.history-list li .item-url{
   color: #428bca;
 }
 
+body .modal-dialog {
+    
+    width: 900px;
+    margin-left: 300px;
+}
+
+.modal-body li div {
+    word-wrap: break-word;
+}
+
+.wordwrap { 
+   white-space: pre-wrap;      /* CSS3 */   
+   white-space: -moz-pre-wrap; /* Firefox */    
+   white-space: -pre-wrap;     /* Opera <7 */   
+   white-space: -o-pre-wrap;   /* Opera 7 */    
+   word-wrap: break-word;      /* IE */
+}

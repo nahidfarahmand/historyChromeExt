@@ -14,11 +14,11 @@
       <button type="button" class="btn btn-primary" ng-init="init()">
         {{date | date:'dd-EEE-yyyy HH:00'}}
       </button>
-      <button type="button" class="btn btn-primary" ng-click="hourView()">Hour View</button>
-      <button type="button" class="btn btn-primary" ng-click="dayView()">Day View</button>
-      <div id="scatterplot">
+      <button type="button" class="btn btn-primary"  ng-click="hourViewEnabled()">Hour View</button>
+      <button type="button" class="btn btn-primary" ng-click="dayViewEnabled()">Day View</button>
+      <div ng-show="dayView == false" id="scatterplot">
       </div>
-            <div id="scatterplot2">
+            <div ng-show="dayView == true" id="scatterplot2">
       </div>
       <ul class="list-inline">
         <li ng-repeat="time in [] | range:24" class="min-margin-right" ng-class="{'bold large' : selectedHour == time}" ng-click="changeTime(time)">
@@ -35,6 +35,33 @@
         </span>
       </ul>
       <hr>
+      
+
+<!-- Modal -->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+      </div>
+      <div class="modal-body">
+      <ul class="history-list">
+        <li ng-repeat="dayEvent in selectedCircle.eventInfoArray" height=20>
+		<a href="{{dayEvent.url}}" target="_blank">
+                <img ng-src="http://g.etfv.co/http://{{ dayEvent.url | domain}}" class="icon"/>
+                <div class="item-history" >
+                  <div class="item-url wordwrap">{{dayEvent.url}}</div>
+                  <div class="item-title">{{dayEvent.title | itemTitle}}</div>
+                </div>
+		</a>
+	</li>
+	</ul>
+      </div>
+      <div class="modal-footer">
+      </div>
+    </div>
+  </div>
+</div>
       <ul class="history-list">
         <li ng-repeat="event in urlArray">
             <a href="{{event.url}}" target="_blank">

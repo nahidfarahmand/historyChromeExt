@@ -1,6 +1,7 @@
 var ctrls = angular.module('HistoryChromeEx.controllers', []);
 
 ctrls.controller("PageController", function($scope, $filter) {
+    
     $scope.date = new Date();
     $scope.date.setMinutes(0);
     $scope.weekCounter = 0;
@@ -28,6 +29,12 @@ ctrls.controller("PageController", function($scope, $filter) {
     }];
     $scope.selectedDay = $scope.date.getDay();
     $scope.selectedHour = $scope.date.getHours();
+    
+    var DayCountInfo = function (eventInfo , count) {
+	this.eventInfoArray = [];
+	this.eventInfoArray.push(eventInfo);
+	this.count = count;
+    };
 
     var CalendarChartInfo = function (startTime, endTime, index, summary) {
 	this.startTime = startTime;
@@ -102,13 +109,13 @@ ctrls.controller("PageController", function($scope, $filter) {
     };
 
     $scope.urlArray = [];
-    $scope.urlDayArray = [];
+    $scope.urlDayArray = new Object();
+    $scope.timeArray = [];
 
     $scope.init = function() {
-
+	$scope.dayView = false;
         $scope.buildTypedUrlList();
-	$( "#scatterplot2" ).hide();
-
+	
     };
 
     $scope.changeDay = function(index) {
@@ -126,15 +133,13 @@ ctrls.controller("PageController", function($scope, $filter) {
 
     };
     
-    $scope.hourView = function() {
-        $( "#scatterplot" ).show();
-	$( "#scatterplot2" ).hide();
+    $scope.hourViewEnabled = function() {
+        $scope.dayView = false;
 
     };
     
-    $scope.dayView = function() {
-        $( "#scatterplot2" ).show();
-	$( "#scatterplot" ).hide();
+    $scope.dayViewEnabled = function() {
+        $scope.dayView = true;
 
     };
 
@@ -161,6 +166,7 @@ ctrls.controller("PageController", function($scope, $filter) {
 	var startOfDay = startOfDayDate.getTime();
 	var endOfDay = startOfDay +  1000 * 60 * 60 * 24;
 
+
         var numberProcessed = 0;
 
         var processVisits = function(url, index, visitItems) {
@@ -173,8 +179,40 @@ ctrls.controller("PageController", function($scope, $filter) {
                 }
 		
 		if (visitItems[ii].id == $scope.historyArray[index].id && visitItems[ii].visitTime >= startOfDay && visitItems[ii].visitTime <= endOfDay) {
-                    $scope.urlDayArray.push(new EventInfo($scope.historyArray[index].id, url, new Date(visitItems[ii].visitTime), $scope.historyArray[index].title));
-
+		     var time = new Date(visitItems[ii].visitTime);
+		     time.setMinutes(time.getMinutes(),0,0);
+		     if($scope.timeArray.indexOf(time.getTime()) == -1)
+			$scope.timeArray.push(time.getTime());
+		     var timeVal = time.getTime();
+		     var eventInfo = new EventInfo($scope.historyArray[index].id, url, time, $scope.historyArray[index].title);
+		     //console.log($scope.urlDayArray[time]);
+		    if($scope.urlDayArray[timeVal] !== undefined) {
+		    
+			var found = false;
+			//console.log($scope.urlDayArray[time].count);
+			for(var j = 0 ; j < $scope.urlDayArray[timeVal].eventInfoArray.length ; j++)
+			{
+				if($scope.urlDayArray[timeVal].eventInfoArray[j].url == url)
+				{
+					found = true;
+					break;
+				}
+			}
+			if(!found)
+			{
+				$scope.urlDayArray[timeVal].eventInfoArray.push(eventInfo);
+				$scope.urlDayArray[timeVal].count++;
+				
+			}
+			
+		    }
+		    else
+		    {
+			
+			$scope.urlDayArray[timeVal] = new DayCountInfo(eventInfo,1);
+			
+		    }
+		    
                 }
             }
 
@@ -186,13 +224,55 @@ ctrls.controller("PageController", function($scope, $filter) {
         var onAllVisitsProcessed = function() {
             $scope.chartArray = [];
 	    $scope.chartArrayWithDuration = [];
-	    $scope.chartDayArray = [];
-	    for(var i = 0 ; i < 24 * 60 ; i++)
-		$scope.chartDayArray[i] = 0;
-	    for (var ii = 0; ii < $scope.urlDayArray.length; ii++) {
-	        var index = $scope.urlDayArray[ii].timeOfVisit.getHours() * 60 + $scope.urlDayArray[ii].timeOfVisit.getMinutes();
-		$scope.chartDayArray[index] += 1; 
-	    }
+	    $scope.chartDayArray = new Object();
+	    
+	    
+	    //sort the timeArray
+	    $scope.timeArray.sort();
+	    console.log($scope.timeArray.length);
+	    	var millisecondPerMinute = 1000 * 60;
+	
+		//to get the count every 1 minutes
+		var interval = 5;
+	
+		for (var ii = 0; ii < $scope.timeArray.length; ii++) 
+		{
+			var indexToAdd = 0;
+			var time = new Date($scope.timeArray[ii]);
+			var time2 = new Date($scope.timeArray[ii]);
+			var timeMin = time.getMinutes() -  time.getMinutes() % interval;
+			
+			time.setMinutes(timeMin,0,0);
+			
+			//item is already there 
+			if( $scope.chartDayArray[time] !== undefined) {
+			     //loop through all events to avoid adding the same url
+			    
+			     for(var i = 0 ; i < $scope.urlDayArray[$scope.timeArray[ii]].eventInfoArray.length ; i++)
+			     {
+				var found = false;
+				for(var j = 0 ; j < $scope.chartDayArray[time].eventInfoArray.length ; j++)
+				{
+				if($scope.chartDayArray[time].eventInfoArray[j].url == $scope.urlDayArray[$scope.timeArray[ii]].eventInfoArray[i].url)
+					found = true;
+					break;
+				}
+				if(!found)
+				 {
+					$scope.chartDayArray[time].eventInfoArray.push($scope.urlDayArray[$scope.timeArray[ii]].eventInfoArray[i]);
+					$scope.chartDayArray[time].count+= 1;					
+				 }
+			     }
+			}
+			else
+			{
+				$scope.chartDayArray[time] = $scope.urlDayArray[$scope.timeArray[ii]];
+				
+			    
+			}
+
+		}    
+
             var currentIndex = 0;
 	    var currentIndexWithDuration = 0;
             for (var ii = 0; ii < $scope.urlArray.length; ii++) {
@@ -275,7 +355,8 @@ ctrls.controller("PageController", function($scope, $filter) {
             function(historyItems) {
                 // For each history item, get details on all visits.
                 $scope.urlArray = [];
-		$scope.urlDayArray = [];
+		$scope.urlDayArray = new Object();
+		$scope.timeArray = [];
 		$scope.historyArray = historyItems;
                 numberProcessed = historyItems.length;
                 for (var i = 0; i < historyItems.length; ++i) {
@@ -443,7 +524,7 @@ ctrls.controller("PageController", function($scope, $filter) {
                 left: 30
             },
             width = 1000 - margin.left - margin.right,
-            height = 60 * 13;
+            height = 25 * 13;
         var x = d3.scale.linear()
             .domain([0, 24])
             .range([0, width]);
@@ -528,32 +609,39 @@ ctrls.controller("PageController", function($scope, $filter) {
 	    
 	var g2 = main.append("svg:g");
         g2.selectAll('#scatterplot2')
-            .data($scope.chartDayArray) // using the values in the yFemaleLE array
+            .data(d3.entries($scope.chartDayArray)) // using the values in the yFemaleLE array
             .enter().append('svg:circle')
             .attr('data-original-title', function(d){return d;})
             .attr('data-trigger', 'manual')
             .attr('data-placement', 'top')
             .attr('data-container', 'body')
             .attr("fill","orange")
+	    .attr("class", "clickable")
 	    .attr("r", function(d, i) {
-	        return(d > 0) ? 6 :0;
+	        return 10;
             })
             .attr("cy", function(d, i) {
-	        return y(i % 60);
+	        return y( new Date(d.key).getMinutes() + 2.5);
             })
             .attr("cx", function(d, i) {
-                return x( Math.floor(i / 60));
-            });
+                return x( new Date(d.key).getHours());
+            })
+	    .on("click", function(d) {
+		$scope.selectedCircle = d.value;
+		$scope.$apply();
+        })
+	    .attr("data-toggle","modal")
+	    .attr("data-target","#myModal");
 	    
 	g2.selectAll('#scatterplot2')
-		.data($scope.chartDayArray)
+		.data(d3.entries($scope.chartDayArray))
 		.enter().append("text") //Add a text element
-		.attr("y", function (d,i) { return y(i % 60);})
-		.attr("x", function (d,i) { return x( Math.floor(i / 60)); })
+		.attr("y", function (d,i) { return y(new Date(d.key).getMinutes() + 2.5 );})
+		.attr("x", function (d,i) { return x( new Date(d.key).getHours()); })
 		.attr("dx", function(d,i){ return -3;})
 		.attr("dy", function(d,i){ return +3;})
 		.attr('class', 'small')
-		.text(function(d, i){ return (d > 0) ?d : '';});
+		.text(function(d, i){ return d.value.count;});
 
 
 
